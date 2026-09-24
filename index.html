@@ -384,6 +384,19 @@ body {
 
 
 
+<!-- =========================
+     BACKGROUND MUSIC
+     ========================= -->
+
+<audio
+  id="bgMusic"
+  src="moon-palace-torch-music.mp3"
+  preload="auto"
+  loop>
+</audio>
+
+
+
 <script>
 
 
@@ -407,10 +420,107 @@ const startHint =
 document.getElementById("startHint");
 
 
+const bgMusic =
+document.getElementById("bgMusic");
+
+
+
 let dragging = false;
 
 
 let gameStarted = false;
+
+
+
+/* =========================
+   MUSIC SETTINGS
+   ========================= */
+
+
+/*
+Background music starts quietly.
+
+0.18 = 18% volume.
+Change this later if you want.
+*/
+
+const targetMusicVolume = 0.18;
+
+
+bgMusic.volume = 0;
+
+
+/*
+Gradually fade the music in
+after the first player touch.
+*/
+
+function startBackgroundMusic() {
+
+
+  bgMusic.volume = 0;
+
+
+  const playPromise =
+    bgMusic.play();
+
+
+  if (playPromise !== undefined) {
+
+
+    playPromise
+      .then(function() {
+
+
+        let volume = 0;
+
+
+        const fade =
+          setInterval(function() {
+
+
+            volume += 0.015;
+
+
+            if (
+              volume >=
+              targetMusicVolume
+            ) {
+
+
+              volume =
+                targetMusicVolume;
+
+
+              clearInterval(fade);
+
+            }
+
+
+            bgMusic.volume =
+              volume;
+
+
+          }, 80);
+
+
+      })
+      .catch(function(error) {
+
+
+        console.log(
+          "Background music could not start:",
+          error
+        );
+
+
+      });
+
+
+  }
+
+
+}
 
 
 
@@ -645,7 +755,10 @@ game.addEventListener(
 
 
 
-    /* Hide lantern after first touch */
+    /*
+    First interaction:
+    hide lantern and start music.
+    */
 
 
     if (!gameStarted) {
@@ -656,6 +769,9 @@ game.addEventListener(
 
       startHint.style.display =
         "none";
+
+
+      startBackgroundMusic();
 
     }
 
@@ -680,7 +796,9 @@ game.addEventListener(
 
 
 
-/* Player moves finger */
+/* =========================
+   PLAYER MOVES FINGER
+   ========================= */
 
 game.addEventListener(
 
@@ -692,7 +810,9 @@ game.addEventListener(
 
 
 
-/* Player releases finger */
+/* =========================
+   PLAYER RELEASES FINGER
+   ========================= */
 
 game.addEventListener(
 
@@ -716,6 +836,10 @@ game.addEventListener(
 
 
 
+/* =========================
+   TOUCH CANCELLED
+   ========================= */
+
 game.addEventListener(
 
   "pointercancel",
@@ -737,6 +861,10 @@ game.addEventListener(
 );
 
 
+
+/* =========================
+   SCREEN RESIZE
+   ========================= */
 
 window.addEventListener(
 
